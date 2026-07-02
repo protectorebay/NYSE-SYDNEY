@@ -1,0 +1,102 @@
+html,
+body{
+    margin:0;
+    padding:0;
+    width:100%;
+    height:100%;
+    background:transparent;
+    overflow:hidden;
+}
+
+body{
+    position:relative;
+    font-family:Arial, Helvetica, sans-serif;
+}
+
+#sessionTimer{
+
+    position:absolute;
+
+    left:10px;
+    top:5px;
+
+    white-space:nowrap;
+
+    font-size:42px;
+    font-weight:700;
+    line-height:1;
+
+    color:#ffffff;
+
+    text-align:left;
+
+    text-shadow:
+        0 0 3px rgba(0,0,0,.95),
+        0 0 8px rgba(0,0,0,.95);
+
+    user-select:none;
+    -webkit-user-select:none;
+
+    -webkit-font-smoothing:antialiased;
+    -moz-osx-font-smoothing:grayscale;
+}
+
+/* =====================================
+   STATUS COLORS
+===================================== */
+
+.open{
+    color:#33ff66;
+}
+
+.closed{
+    color:#ff4444;
+}
+
+.weekend{
+    color:#ffb000;
+}
+
+.holiday{
+    color:#ffd700;
+}
+
+.premarket{
+    color:#ffb000;
+    font-weight:700;
+}
+
+.postmarket{
+    color:#ffb000;
+    font-weight:700;
+}
+
+/* =====================================
+   PULSE ANIMATION
+   (used only during the last 60 seconds
+   before a state change)
+===================================== */
+
+@keyframes pulse{
+
+    0%{
+        filter:brightness(100%);
+    }
+
+    50%{
+        filter:brightness(185%);
+    }
+
+    100%{
+        filter:brightness(100%);
+    }
+
+}
+
+.pulse{
+
+    animation:pulse 1s linear infinite;
+
+    will-change:filter;
+
+}
