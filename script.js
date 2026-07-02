@@ -1,12 +1,12 @@
-// NYSE Session Timer v2.0
+// SYDNEY Session Timer v2.1
 // Holiday engine intentionally omitted.
-// Session: 08:00-17:00 America/New_York
-
-const SESSION_OPEN_HOUR = 8;
-const SESSION_CLOSE_HOUR = 17;
+// Session:
+// Pre Market:    09:00 - 10:00
+// Regular:       10:00 - 16:00
+// Post Market:   16:00 - 17:00
+// Time Zone: Australia/Sydney
 
 const timer = document.getElementById("sessionTimer");
-
 const alertSound = new Audio("alert.mp3");
 
 let alertPlayed = false;
@@ -30,19 +30,16 @@ function playAlertOnce(){
 }
 
 function render(statusClass,statusText,phaseClass,phaseText,action,left,pulse){
-
     const pulseClass=pulse?" pulse":"";
 
-    let html='NEW YORK SESSION • ';
-
-    html+='<span class="'+statusClass+pulseClass+'">'+statusText+'</span>';
+    let html="SYDNEY SESSION • ";
+    html+='<span class="'+statusClass+pulseClass+'">'+statusText+"</span>";
 
     if(phaseText){
-        html+=' <span class="'+phaseClass+pulseClass+'">('+phaseText+')</span>';
+        html+=' <span class="'+phaseClass+pulseClass+'">('+phaseText+")</span>";
     }
 
-    html+=' • '+action+' '+formatTime(left);
-
+    html+=" • "+action+" "+formatTime(left);
     timer.innerHTML=html;
 }
 
@@ -57,141 +54,85 @@ function updateTimer(){
 
     const now=new Date();
 
-    const ny=new Date(now.toLocaleString("en-US",{
-        timeZone:"America/New_York"
+    const sydney=new Date(now.toLocaleString("en-US",{
+        timeZone:"Australia/Sydney"
     }));
 
-    const day=ny.getDay();
+    const day=sydney.getDay();
 
-    const open=new Date(ny);
-    open.setHours(8,0,0,0);
+    const open=new Date(sydney);
+    open.setHours(9,0,0,0);
 
-    const preEnd=new Date(ny);
-    preEnd.setHours(9,30,0,0);
+    const preEnd=new Date(sydney);
+    preEnd.setHours(10,0,0,0);
 
-    const regularEnd=new Date(ny);
+    const regularEnd=new Date(sydney);
     regularEnd.setHours(16,0,0,0);
 
-    const close=new Date(ny);
+    const close=new Date(sydney);
     close.setHours(17,0,0,0);
 
-    // WEEKEND
-    if(day===6 || day===0){
+    if(day===0 || day===6){
 
         let next=new Date(open);
 
         if(day===6) next.setDate(next.getDate()+2);
         else next.setDate(next.getDate()+1);
 
-        const left=next-ny;
+        const left=next-sydney;
 
         stateChanged("weekend");
-
         if(left<=60000) playAlertOnce();
 
-        render(
-            "weekend",
-            "WEEKEND",
-            "",
-            "",
-            "OPENS IN",
-            left,
-            left<=60000
-        );
-
+        render("weekend","WEEKEND","","","OPENS IN",left,left<=60000);
         return;
     }
 
-    // CLOSED
-    if(ny<open || ny>=close){
+    if(sydney<open || sydney>=close){
 
         let next=new Date(open);
 
-        if(ny>=close){
+        if(sydney>=close){
             next.setDate(next.getDate()+1);
         }
 
-        const left=next-ny;
+        const left=next-sydney;
 
         stateChanged("closed");
-
         if(left<=60000) playAlertOnce();
 
-        render(
-            "closed",
-            "CLOSED",
-            "",
-            "",
-            "OPENS IN",
-            left,
-            left<=60000
-        );
-
+        render("closed","CLOSED","","","OPENS IN",left,left<=60000);
         return;
     }
 
-    // PRE MARKET
-    if(ny<preEnd){
+    if(sydney<preEnd){
 
-        const left=preEnd-ny;
+        const left=preEnd-sydney;
 
         stateChanged("premarket");
-
         if(left<=60000) playAlertOnce();
 
-        render(
-            "open",
-            "OPEN",
-            "premarket",
-            "PRE MARKET",
-            "REGULAR MARKET IN",
-            left,
-            left<=60000
-        );
-
+        render("open","OPEN","premarket","PRE MARKET","REGULAR MARKET IN",left,left<=60000);
         return;
     }
 
-    // REGULAR
-    if(ny<regularEnd){
+    if(sydney<regularEnd){
 
-        const left=regularEnd-ny;
+        const left=regularEnd-sydney;
 
         stateChanged("regular");
-
         if(left<=60000) playAlertOnce();
 
-        render(
-            "open",
-            "OPEN",
-            "",
-            "",
-            "POST MARKET IN",
-            left,
-            left<=60000
-        );
-
+        render("open","OPEN","","","POST MARKET IN",left,left<=60000);
         return;
     }
 
-    // POST MARKET
-
-    const left=close-ny;
+    const left=close-sydney;
 
     stateChanged("postmarket");
-
     if(left<=60000) playAlertOnce();
 
-    render(
-        "open",
-        "OPEN",
-        "postmarket",
-        "POST MARKET",
-        "CLOSES IN",
-        left,
-        left<=60000
-    );
-
+    render("open","OPEN","postmarket","POST MARKET","CLOSES IN",left,left<=60000);
 }
 
 updateTimer();
