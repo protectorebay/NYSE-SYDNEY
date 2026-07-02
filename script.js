@@ -1,9 +1,9 @@
-// SYDNEY Session Timer v2.1
+// SYDNEY Session Timer v2.2
 // Holiday engine intentionally omitted.
 // Session:
-// Pre Market:    09:00 - 10:00
+// Pre Market:    07:00 - 10:00
 // Regular:       10:00 - 16:00
-// Post Market:   16:00 - 17:00
+// Closing Phase: 16:00 - 16:10
 // Time Zone: Australia/Sydney
 
 const timer = document.getElementById("sessionTimer");
@@ -31,14 +31,11 @@ function playAlertOnce(){
 
 function render(statusClass,statusText,phaseClass,phaseText,action,left,pulse){
     const pulseClass=pulse?" pulse":"";
-
     let html="SYDNEY SESSION • ";
     html+='<span class="'+statusClass+pulseClass+'">'+statusText+"</span>";
-
     if(phaseText){
         html+=' <span class="'+phaseClass+pulseClass+'">('+phaseText+")</span>";
     }
-
     html+=" • "+action+" "+formatTime(left);
     timer.innerHTML=html;
 }
@@ -61,7 +58,7 @@ function updateTimer(){
     const day=sydney.getDay();
 
     const open=new Date(sydney);
-    open.setHours(9,0,0,0);
+    open.setHours(7,0,0,0);
 
     const preEnd=new Date(sydney);
     preEnd.setHours(10,0,0,0);
@@ -70,69 +67,52 @@ function updateTimer(){
     regularEnd.setHours(16,0,0,0);
 
     const close=new Date(sydney);
-    close.setHours(17,0,0,0);
+    close.setHours(16,10,0,0);
 
     if(day===0 || day===6){
-
         let next=new Date(open);
-
         if(day===6) next.setDate(next.getDate()+2);
         else next.setDate(next.getDate()+1);
 
         const left=next-sydney;
-
         stateChanged("weekend");
         if(left<=60000) playAlertOnce();
-
         render("weekend","WEEKEND","","","OPENS IN",left,left<=60000);
         return;
     }
 
     if(sydney<open || sydney>=close){
-
         let next=new Date(open);
-
-        if(sydney>=close){
-            next.setDate(next.getDate()+1);
-        }
+        if(sydney>=close) next.setDate(next.getDate()+1);
 
         const left=next-sydney;
-
         stateChanged("closed");
         if(left<=60000) playAlertOnce();
-
         render("closed","CLOSED","","","OPENS IN",left,left<=60000);
         return;
     }
 
     if(sydney<preEnd){
-
         const left=preEnd-sydney;
-
         stateChanged("premarket");
         if(left<=60000) playAlertOnce();
-
         render("open","OPEN","premarket","PRE MARKET","REGULAR MARKET IN",left,left<=60000);
         return;
     }
 
     if(sydney<regularEnd){
-
         const left=regularEnd-sydney;
-
         stateChanged("regular");
         if(left<=60000) playAlertOnce();
-
-        render("open","OPEN","","","POST MARKET IN",left,left<=60000);
+        render("open","OPEN","","","CLOSING PHASE IN",left,left<=60000);
         return;
     }
 
     const left=close-sydney;
-
-    stateChanged("postmarket");
+    stateChanged("closing");
     if(left<=60000) playAlertOnce();
 
-    render("open","OPEN","postmarket","POST MARKET","CLOSES IN",left,left<=60000);
+    render("open","OPEN","postmarket","CLOSING PHASE","CLOSES IN",left,left<=60000);
 }
 
 updateTimer();
